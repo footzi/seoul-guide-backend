@@ -1,0 +1,10 @@
+node_modules
+coverage
+logs
+npm-debug.log*
+*.log
+.*cache*
+**/__snapshots__/**/*.diff.png
+.idea
+/dist
+.env

@@ -1,0 +1,15 @@
+{
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "semi": true,
+  "endOfLine": "auto",
+  "jsxBracketSameLine": true,
+  "printWidth": 120,
+  "quoteProps": "consistent",
+  "pugTabWidth": 2,
+  "importOrder": ["^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
