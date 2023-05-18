@@ -10,7 +10,7 @@ const { EMAIL_REGEXP } = require('./constants');
 const { initFirebase } = require('./firebase');
 const { getCurrentDate } = require('./utils');
 
-const { PORT, USE_CORS } = process.env;
+const { PORT, USE_CORS, SHOP_ID, SECRET_SHOP_KEY, SHOP_PAYMENT_URL } = process.env;
 
 const db = initFirebase();
 
@@ -38,7 +38,7 @@ app.post('/api/pay', async (req, res) => {
 
     const body = {
       amount: {
-        value,
+        value: `${value}`,
         currency: 'RUB',
       },
       capture: true,
@@ -46,24 +46,32 @@ app.post('/api/pay', async (req, res) => {
         type: 'redirect',
         return_url: `${returnUrl}?id=${id}`,
       },
-      description: {
+      description: `Гайд по Сеулу. Для ${name}, email: ${email}`,
+      metadata: {
+        id,
         name,
         email,
       },
     };
 
-    const response = await axios('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.post(SHOP_PAYMENT_URL, body, {
+      headers: {
+        'Idempotence-Key': idempotenceKey,
+        'Content-Type': 'application/json',
+      },
+      auth: { username: SHOP_ID, password: SECRET_SHOP_KEY },
+    });
 
-    if (response.data) {
+    if (response?.data?.id && response?.data?.confirmation?.confirmation_url) {
       await addDoc(collection(db, 'payments'), {
         id,
         name,
         email,
-        paymentId: '1815',
+        paymentId: response.data.id,
         date: getCurrentDate(),
       });
 
-      res.send({ test: 'hello' });
+      res.send({ paymentLink: response.data.confirmation.confirmation_url });
     } else {
       throw new Error('Ошибка создания платежа');
     }
@@ -99,12 +107,16 @@ app.get('/api/checkStatus', async (req, res) => {
       throw new Error('paymentId не найден');
     }
 
-    const response = await axios('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.get(`${SHOP_PAYMENT_URL}/${paymentId}`, {
+      auth: { username: SHOP_ID, password: SECRET_SHOP_KEY },
+    });
 
-    // succeeded
-
-    if (response.data) {
-      res.send({ success: true });
+    if (response?.data) {
+      if (response.data.status === 'succeeded') {
+        res.send({ success: true });
+      } else {
+        throw new Error('Платеж не оплачен');
+      }
     } else {
       throw new Error('Ошибка проверки платежа');
     }
