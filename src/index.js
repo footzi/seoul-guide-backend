@@ -9,6 +9,7 @@ const { getDocs, collection, addDoc, query, where } = require('firebase/firestor
 const { EMAIL_REGEXP } = require('./constants');
 const { initFirebase } = require('./firebase');
 const { getCurrentDate } = require('./utils');
+const { TelegramLog } = require('./telegram-log');
 
 const { PORT, USE_CORS, SHOP_ID, SECRET_SHOP_KEY, SHOP_PAYMENT_URL } = process.env;
 
@@ -72,14 +73,18 @@ app.post('/api/pay', async (req, res) => {
       });
 
       res.send({ paymentLink: response.data.confirmation.confirmation_url });
+      TelegramLog.createPay(id, name, email);
     } else {
       throw new Error('Ошибка создания платежа');
     }
   } catch (error) {
+    const message = error?.message ?? 'Произошла ошибка';
+
+    TelegramLog.error(message, error?.stack);
     res.status(500);
     res.send({
       error: {
-        message: error?.message ?? 'Произошла ошибка',
+        message,
       },
     });
   }
@@ -121,10 +126,13 @@ app.get('/api/checkStatus', async (req, res) => {
       throw new Error('Ошибка проверки платежа');
     }
   } catch (error) {
+    const message = error?.message ?? 'Произошла ошибка';
+
+    TelegramLog.error(message, error?.stack);
     res.status(500);
     res.send({
       error: {
-        message: error?.message ?? 'Произошла ошибка',
+        message,
       },
     });
   }
@@ -145,11 +153,15 @@ app.post('/api/statistic-downloads', async (req, res) => {
     });
 
     res.send({ success: true });
+    TelegramLog.downloadFile(id);
   } catch (error) {
+    const message = error?.message ?? 'Произошла ошибка';
+    TelegramLog.error(message, error?.stack);
+
     res.status(500);
     res.send({
       error: {
-        message: error?.message ?? 'Произошла ошибка',
+        message,
       },
     });
   }
