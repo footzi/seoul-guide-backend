@@ -25,8 +25,14 @@ class TelegramLog {
     TelegramLog.send(message);
   }
 
-  static downloadFile(id, name, email) {
+  static downloadFile(id) {
     const message = `<b>📥 Был скачен файл</b>\n\n<i>id: ${id}</i>`;
+
+    TelegramLog.send(message);
+  }
+
+  static downloadPreviewFile() {
+    const message = `<b>🚀 Был скачен preview</b>`;
 
     TelegramLog.send(message);
   }

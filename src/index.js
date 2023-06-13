@@ -167,6 +167,28 @@ app.post('/api/statistic-downloads', async (req, res) => {
   }
 });
 
+app.post('/api/statistic-preview-downloads', async (req, res) => {
+  try {
+    await addDoc(collection(db, 'preview-downloads'), {
+      userAgent: req.get('user-agent'),
+      date: getCurrentDate(),
+    });
+
+    res.send({ success: true });
+    TelegramLog.downloadPreviewFile();
+  } catch (error) {
+    const message = error?.message ?? 'Произошла ошибка';
+    TelegramLog.error(message, error?.stack);
+
+    res.status(500);
+    res.send({
+      error: {
+        message,
+      },
+    });
+  }
+});
+
 app.get('/api', (req, res) => {
   res.send('Hello World!');
 });
