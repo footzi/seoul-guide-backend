@@ -53,6 +53,24 @@ app.post('/api/pay', async (req, res) => {
         name,
         email,
       },
+      receipt: {
+        customer: {
+          email,
+        },
+        items: [
+          {
+            description: 'Гайд по Сеулу',
+            amount: {
+              value: `${value}.00`,
+              currency: 'RUB',
+            },
+            vat_code: 1,
+            quantity: '1',
+            payment_mode: 'full_payment',
+          },
+        ],
+        tax_system_code: 2,
+      },
     };
 
     const response = await axios.post(SHOP_PAYMENT_URL, body, {
