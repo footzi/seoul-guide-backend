@@ -22,6 +22,10 @@ if (USE_CORS) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/api/health-check', (req, res) => {
+  res.send('OK');
+})
+
 app.post('/api/pay', async (req, res) => {
   try {
     const { name, email, value, returnUrl, agreement } = req.body;

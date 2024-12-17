@@ -1,7 +1,16 @@
 const getCurrentDate = () => {
-  const date = new Date();
+  const now = new Date();
 
-  return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+  const padZero = (num) => String(num).padStart(2, '0');
+
+  const year = now.getFullYear();
+  const month = padZero(now.getMonth() + 1);
+  const day = padZero(now.getDate());
+  const hours = padZero(now.getHours());
+  const minutes = padZero(now.getMinutes());
+  const seconds = padZero(now.getSeconds());
+
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
 
 module.exports = {
